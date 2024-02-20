@@ -1,0 +1,138 @@
+@startuml
+
+hide circle
+
+class Gare {
+    nom: string
+    adresse: string
+    ville: string
+    zoneHoraire: string
+}
+
+note top : (nom, ville) {key}
+
+class Train {
+    numéro: int {key}
+}
+
+class TypeTrain {
+    nom: string
+    nombrePlacesMax: int
+    premièreClasseDisponible: boolean
+    vitesseMax: int
+}
+
+class Ligne {
+
+}
+
+class Voyage {
+    débutPériode : datetime
+    finPériode : datetime
+}
+
+note left : finPériode > débutPériode
+
+class DateException {
+    jour: datetime {key}
+}
+
+class DateHebdomadaire {
+    jour: Jour {key}
+}
+
+class Jour <<Enumération>> {
+    Lundi
+    Mardi
+    Mercredi
+    Jeudi
+    Vendredi
+    Samedi
+    Dimanche
+}
+
+
+class Dessert {
+    heureDépart: datetime
+    heureArrivée: datetime
+}
+
+note bottom: Gare de départ et d'arrivée de la ligne desservie. \n heureArrivée > heureDépart 
+
+class Hôtel {
+    nom: string
+    adresse: string
+}
+
+class Taxi {
+    téléphone: string(10) {key}
+}
+
+class TransportPublic {
+    ligne: string {key}
+    description: string
+}
+
+Gare "*" -r- "*" Hôtel : à proximité de >
+Gare "*" -- "*" Taxi : à proximité de >
+Gare "*" -- "*" TransportPublic : à proximité de >
+Voyage "*" -- "1..7" DateHebdomadaire : est desservi le >
+Train "*" -- "1" TypeTrain : est de type >
+Voyage "*" -- "1" TypeTrain : est assuré par >
+Ligne "1" -- "1..*" Voyage : est programmé <
+Ligne "*" -- "1" Gare : part de >
+Ligne "*" -- "1" Gare : arrive à >
+'Ligne "*" -- "2..*" Gare 
+Gare "2..*" -- "*" Voyage : <
+(Gare, Voyage) .. Dessert
+DateException "*" --  "*" Voyage : change le <
+
+'Contrainte gare terminus dans dessert ?
+
+
+class Voyageur <<abstrait>> {
+    nom: string
+    prenom: string
+    adresse: string
+    telephone: string
+}
+
+class VoyageurOccasionnel {
+
+}
+
+class VoyageurRegulier {
+    numCarte: int {unique}
+    statut: string {bronze, silver, gold, platine...}
+}
+
+Voyageur <|-- VoyageurOccasionnel
+
+Voyageur <|-- VoyageurRegulier
+
+class Billet {
+    assurance: boolean
+    prix: numeric
+    moyenDePaiement: string {carte bleue, espèce, chèque, ...}
+}
+
+note top : prix > 0
+
+class Trajet {
+    numplace : int
+    duree()
+}
+
+note right : Gare d'arrivée et de départ du même voyage. \n heure d'arrivée > heure de départ
+
+
+Billet  *-- "1..*" Trajet : est composé >
+Trajet "*" -- "1" Train : utilise >
+Trajet "*" -- "1" Dessert : part de  <
+Trajet "*" -- "1" Dessert : arrive à  <
+'Avec condition même voyage
+Billet "*" -- "1" Voyageur : a acheté <
+
+
+
+@enduml
